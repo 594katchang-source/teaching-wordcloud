@@ -9,6 +9,8 @@
 - 即時生成互動式文字雲
 - 可切換示範資料
 - 已接上 Firebase Hosting 設定
+- 可把目前文字存進 Firestore
+- 可從 Firestore 讀回最新一筆文字雲資料
 
 ## 線上網址
 
@@ -36,3 +38,8 @@ firebase.cmd deploy
 - `public/app.js`
 - `firebase.json`
 - `firestore.rules`
+
+## 實測結果
+
+- 已實測寫入 `wordcloud_words/latest`
+- 已實測從 `wordcloud_words/latest` 讀回資料

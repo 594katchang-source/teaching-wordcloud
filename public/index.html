@@ -23,7 +23,10 @@
         <div class="hero-actions">
           <button id="load-demo" class="secondary-button" type="button">載入示範文字</button>
           <button id="render-cloud" class="primary-button" type="button">產生文字雲</button>
+          <button id="save-firestore" class="secondary-button" type="button">存到 Firestore</button>
+          <button id="read-firestore" class="secondary-button" type="button">讀取 Firestore</button>
         </div>
+        <p id="db-status" class="status-text">資料庫狀態：尚未測試</p>
       </section>
 
       <section class="workspace-grid">
@@ -53,6 +56,6 @@
       </section>
     </main>
 
-    <script src="/app.js"></script>
+    <script type="module" src="/app.js?v=20260622b"></script>
   </body>
 </html>

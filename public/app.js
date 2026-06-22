@@ -1,3 +1,25 @@
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+import {
+  doc,
+  getDoc,
+  getFirestore,
+  serverTimestamp,
+  setDoc
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyC_kXSLstZLY0zCD9-eQMsN8Wg2hTjvkoI",
+  authDomain: "teaching-3809d.firebaseapp.com",
+  projectId: "teaching-3809d",
+  storageBucket: "teaching-3809d.firebasestorage.app",
+  messagingSenderId: "143411220822",
+  appId: "1:143411220822:web:f1a867d29f79b93c2cc6f7"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const latestDocRef = doc(db, "wordcloud_words", "latest");
+
 const demoText = `營養教育 健康促進 高齡飲食 教學設計 互動課程 社區衛教
 高齡營養 高齡營養 慢性病飲食 飲食評估 食材選擇
 教學 教學 教學 溝通 實作 問答 動機 行為改變
@@ -7,12 +29,19 @@ const cloud = document.querySelector("#cloud");
 const sourceText = document.querySelector("#source-text");
 const topWords = document.querySelector("#top-words");
 const summary = document.querySelector("#summary");
+const statusText = document.querySelector("#db-status");
 const renderButton = document.querySelector("#render-cloud");
 const demoButton = document.querySelector("#load-demo");
+const saveButton = document.querySelector("#save-firestore");
+const readButton = document.querySelector("#read-firestore");
 
 const palette = ["#d5542f", "#1f7a8c", "#f2b134", "#6b8e23", "#6c4ab6", "#2d4059"];
 
 sourceText.value = demoText;
+
+function setStatus(message) {
+  statusText.textContent = `資料庫狀態：${message}`;
+}
 
 function tokenize(text) {
   return text
@@ -88,12 +117,76 @@ function updateCloud() {
   const items = analyze(sourceText.value);
   renderTopWords(items);
   renderCloud(items);
+  return items;
 }
 
-renderButton.addEventListener("click", updateCloud);
+async function saveLatestWordCloud() {
+  const items = updateCloud();
+  setStatus("寫入中");
+  console.log("saveLatestWordCloud:start", { textLength: sourceText.value.length });
+
+  try {
+    await setDoc(latestDocRef, {
+      text: sourceText.value,
+      summary: summary.textContent,
+      topWords: items.slice(0, 8),
+      wordCount: items.length,
+      totalTokenCount: items.reduce((sum, item) => sum + item.count, 0),
+      updatedAt: serverTimestamp(),
+      updatedAtClient: new Date().toISOString()
+    });
+    console.log("saveLatestWordCloud:success");
+    setStatus("已成功寫入 Firestore");
+  } catch (error) {
+    console.error("saveLatestWordCloud:error", error);
+    setStatus(`寫入失敗：${error.message}`);
+    throw error;
+  }
+}
+
+async function readLatestWordCloud() {
+  setStatus("讀取中");
+  console.log("readLatestWordCloud:start");
+  try {
+    const snapshot = await getDoc(latestDocRef);
+
+    if (!snapshot.exists()) {
+      console.warn("readLatestWordCloud:not-found");
+      setStatus("找不到 latest 文件");
+      return null;
+    }
+
+    const data = snapshot.data();
+    sourceText.value = data.text || "";
+    const items = Array.isArray(data.topWords) ? data.topWords : analyze(sourceText.value);
+    renderTopWords(items);
+    renderCloud(Array.isArray(data.topWords) ? analyze(sourceText.value) : items);
+    summary.textContent = data.summary || summary.textContent;
+    console.log("readLatestWordCloud:success", data);
+    setStatus(`已成功讀取 Firestore，最後更新 ${data.updatedAtClient || "未知"}`);
+    return data;
+  } catch (error) {
+    console.error("readLatestWordCloud:error", error);
+    setStatus(`讀取失敗：${error.message}`);
+    throw error;
+  }
+}
+
+renderButton.addEventListener("click", () => {
+  updateCloud();
+});
+
 demoButton.addEventListener("click", () => {
   sourceText.value = demoText;
   updateCloud();
+});
+
+saveButton.addEventListener("click", async () => {
+  await saveLatestWordCloud();
+});
+
+readButton.addEventListener("click", async () => {
+  await readLatestWordCloud();
 });
 
 sourceText.addEventListener("input", () => {
@@ -102,3 +195,4 @@ sourceText.addEventListener("input", () => {
 });
 
 updateCloud();
+setStatus("已載入頁面，尚未做資料庫操作");
