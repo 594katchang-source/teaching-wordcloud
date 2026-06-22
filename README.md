@@ -10,6 +10,11 @@
 - 可切換示範資料
 - 已接上 Firebase Hosting 設定
 
+## 線上網址
+
+- Hosting：`https://teaching-3809d.web.app`
+- GitHub：`https://github.com/594katchang-source/teaching-wordcloud`
+
 ## Firebase 設定
 
 - Firebase 專案名稱：`teaching`

@@ -5,8 +5,9 @@
 專案名稱：teaching
 專案用途：用 Firebase Hosting 發布教學型互動頁面
 主要工作目錄：D:\CodexAI協作平台\teaching
-GitHub repo：待建立
+GitHub repo：`https://github.com/594katchang-source/teaching-wordcloud`
 預設 branch：main
+部署網址：`https://teaching-3809d.web.app`
 
 ## Firebase
 
