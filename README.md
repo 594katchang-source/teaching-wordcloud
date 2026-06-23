@@ -50,12 +50,26 @@ firebase.cmd deploy
 firebase.cmd deploy --only firestore:rules
 ```
 
+## Firestore 煙霧測試
+
+測試腳本會讀取本機忽略檔 `public/firebase-config.js`，不會把 API key 輸出到終端或寫進 repo。
+
+完整寫入與讀回測試前，先短期部署只允許 `wordcloud_words/codex_smoke_20260623` 寫入的 Firestore rules。測完要立刻恢復 `allow write: if false` 並重新部署。
+
+```powershell
+$env:NODE_OPTIONS='--use-system-ca'
+node tools\firestore-smoke-test.mjs
+node tools\firestore-smoke-test.mjs --read-only
+node tools\firestore-smoke-test.mjs --expect-write-denied
+```
+
 ## 主要檔案
 
 - `public/index.html`
 - `public/styles.css`
 - `public/app.js`
 - `public/firebase-config.example.js`
+- `tools/firestore-smoke-test.mjs`
 - `firebase.json`
 - `firestore.rules`
 
@@ -64,3 +78,4 @@ firebase.cmd deploy --only firestore:rules
 - 已實測文字雲本體功能可在沒有 Firebase 設定時運作。
 - 已實測舊版可寫入 `wordcloud_words/latest` 與讀回資料。
 - 2026-06-23 安全修正後，匿名寫入已由 Firestore rules 關閉，需完成登入、App Check 或活動碼流程後再恢復寫入功能。
+- 2026-06-23 煙霧測試確認可短期寫入 `wordcloud_words/codex_smoke_20260623` 並讀回，恢復規則後匿名寫入會回到 403。

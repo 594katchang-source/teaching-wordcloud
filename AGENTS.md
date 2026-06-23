@@ -42,6 +42,7 @@ Firestore 文件路徑：`wordcloud_words/latest`
 - `public/styles.css`
 - `public/app.js`
 - `public/firebase-config.example.js`
+- `tools/firestore-smoke-test.mjs`
 - `firestore.rules`
 - `firebase.json`
 - `.firebaserc`
@@ -54,6 +55,7 @@ Firestore 文件路徑：`wordcloud_words/latest`
 - Firestore 功能要在 `public/firebase-config.js` 存在且內容正確時才啟用。
 - 發布前要確認 repo 內沒有 Google API key、Firebase API key、service account JSON、`.env` 或任何 private token。
 - 若要開放寫入 Firestore，必須先有登入、App Check、活動碼或更明確的資料庫規則，再部署 `firestore.rules`。
+- Firestore 煙霧測試可用 `tools/firestore-smoke-test.mjs`。完整寫入測試時只能短期開放單一測試文件，測完要恢復 `allow write: if false` 並部署。
 
 ## 安全規則
 
@@ -67,6 +69,8 @@ Firestore 文件路徑：`wordcloud_words/latest`
 
 - 在目前這個受限沙箱內直接跑某些 `firebase.cmd` 查詢，CLI 可能會碰到 `C:\Users\cygnu\.config\configstore\firebase-tools.json` 權限錯誤。這類命令要改成升權執行。
 - Firebase Hosting 更新後，Chrome 可能繼續吃舊版 `app.js`。若剛部署完的前端行為看起來沒更新，要替腳本路徑加版本參數，或用新的查詢參數重開頁面再驗證。
+- Node v24 在這台 Windows 主機直接執行 Firestore REST 測試時，可能因 TLS 憑證鏈出現 `UNABLE_TO_VERIFY_LEAF_SIGNATURE`，要加 `$env:NODE_OPTIONS='--use-system-ca'`。
+- Node v24 在這台 Windows 主機的測試腳本內不要用 `process.exit(0)` 提早結束，曾觸發 `UV_HANDLE_CLOSING` assertion。讓腳本自然結束較穩。
 
 ## 不要做
 

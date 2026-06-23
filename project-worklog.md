@@ -1,5 +1,47 @@
 # teaching 工作日誌
 
+## 2026-06-23 Firestore smoke test
+
+### 任務
+
+- 自行做一筆簡單 Firestore 寫入與讀回測試。
+- 測試後恢復 Firestore 匿名寫入封鎖。
+- 把測試流程與踩坑記錄回專案文件。
+
+### 主要輸出
+
+- 新增 `tools/firestore-smoke-test.mjs`。
+- 短期部署只允許 `wordcloud_words/codex_smoke_20260623` 寫入的規則。
+- 測試完成後恢復 `allow write: if false` 並重新部署。
+- 更新 `README.md` 與 `AGENTS.md`。
+
+### 驗證
+
+- `node tools\firestore-smoke-test.mjs` 在短期規則下成功寫入並讀回。
+- 寫入文件：`wordcloud_words/codex_smoke_20260623`。
+- 讀回文字：`Codex Firestore smoke test 2026-06-23 read write ok`。
+- 規則恢復後，`node tools\firestore-smoke-test.mjs --expect-write-denied` 回傳 403，確認匿名寫入已被擋下。
+- 規則恢復後，`node tools\firestore-smoke-test.mjs --read-only` 仍可讀回剛才測試文件。
+
+### 錯誤或風險
+
+- Node 直接呼叫 Firestore REST API 時，第一次遇到 `UNABLE_TO_VERIFY_LEAF_SIGNATURE`，需加 `$env:NODE_OPTIONS='--use-system-ca'`。
+- 測試腳本一開始用 `process.exit(0)` 結束，在 Windows Node v24 觸發 `UV_HANDLE_CLOSING` assertion，已改成自然結束。
+- Firestore rules 短期放行測試文件時，必須在測完後立刻恢復禁止匿名寫入並重新部署。
+
+### 新增規則
+
+- Firestore 寫入驗證應優先使用單一測試文件與短期條件，不要整個 collection 開放寫入。
+- 測試腳本不得輸出 API key，也不得把 `public/firebase-config.js` 加入 Git。
+- 使用 Node 腳本測 Firebase REST API 時，要先設定 `$env:NODE_OPTIONS='--use-system-ca'`。
+
+### 回寫狀態
+
+- `README.md`：已更新
+- `AGENTS.md`：已更新
+- `project-worklog.md`：已更新
+- `tools/firestore-smoke-test.mjs`：已建立
+
 ## 2026-06-23
 
 ### 任務
