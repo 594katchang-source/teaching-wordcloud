@@ -7,18 +7,10 @@ import {
   setDoc
 } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyC_kXSLstZLY0zCD9-eQMsN8Wg2hTjvkoI",
-  authDomain: "teaching-3809d.firebaseapp.com",
-  projectId: "teaching-3809d",
-  storageBucket: "teaching-3809d.firebasestorage.app",
-  messagingSenderId: "143411220822",
-  appId: "1:143411220822:web:f1a867d29f79b93c2cc6f7"
-};
+const firebaseConfig = window.TEACHING_WORDCLOUD_FIREBASE_CONFIG;
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const latestDocRef = doc(db, "wordcloud_words", "latest");
+let db = null;
+let latestDocRef = null;
 
 const demoText = `營養教育 健康促進 高齡飲食 教學設計 互動課程 社區衛教
 高齡營養 高齡營養 慢性病飲食 飲食評估 食材選擇
@@ -41,6 +33,31 @@ sourceText.value = demoText;
 
 function setStatus(message) {
   statusText.textContent = `資料庫狀態：${message}`;
+}
+
+function hasFirebaseConfig(config) {
+  return Boolean(
+    config &&
+      typeof config === "object" &&
+      typeof config.apiKey === "string" &&
+      typeof config.authDomain === "string" &&
+      typeof config.projectId === "string" &&
+      typeof config.appId === "string"
+  );
+}
+
+function initializeDatabase() {
+  if (!hasFirebaseConfig(firebaseConfig)) {
+    saveButton.disabled = true;
+    readButton.disabled = true;
+    setStatus("尚未設定 Firebase，文字雲功能可正常使用");
+    return;
+  }
+
+  const app = initializeApp(firebaseConfig);
+  db = getFirestore(app);
+  latestDocRef = doc(db, "wordcloud_words", "latest");
+  setStatus("Firebase 已設定，尚未做資料庫操作");
 }
 
 function tokenize(text) {
@@ -120,7 +137,14 @@ function updateCloud() {
   return items;
 }
 
+function assertDatabaseReady() {
+  if (!latestDocRef) {
+    throw new Error("尚未設定 Firebase，無法使用 Firestore");
+  }
+}
+
 async function saveLatestWordCloud() {
+  assertDatabaseReady();
   const items = updateCloud();
   setStatus("寫入中");
   console.log("saveLatestWordCloud:start", { textLength: sourceText.value.length });
@@ -145,6 +169,7 @@ async function saveLatestWordCloud() {
 }
 
 async function readLatestWordCloud() {
+  assertDatabaseReady();
   setStatus("讀取中");
   console.log("readLatestWordCloud:start");
   try {
@@ -195,4 +220,4 @@ sourceText.addEventListener("input", () => {
 });
 
 updateCloud();
-setStatus("已載入頁面，尚未做資料庫操作");
+initializeDatabase();
