@@ -26,6 +26,10 @@
 - 已確認 `public/firebase-config.js` 已列入 `.gitignore`。
 - 已確認 `firestore.rules` 已從匿名讀寫改成公開讀取、禁止匿名寫入。
 - 已確認 README、AGENTS、工作日誌已更新。
+- 已確認 Codex 全域 `AGENTS.md` 已加入 Firebase key 與 Secret Scanning 處理規則。
+- 已確認 Antigravity 全域 `AGENTS.md` 已加入 Firebase key 與 Secret Scanning 處理規則。
+- 已確認本機 `D:\CodexAI協作平台\teaching` 已快轉到 GitHub 最新版本。
+- 已掃描本機專案，未再找到 `AIza`、`private_key` 或 `service_account`。
 
 ### 錯誤或風險
 
@@ -33,6 +37,7 @@
 - 仍需到 Google Cloud Console 或 Firebase Console 將舊 key 停用或輪換，並為新 key 設定 HTTP referrer 與 API 權限限制。
 - `firebase-config.js` 若由本機部署，部署前仍要人工確認內容沒有進 Git。
 - 匿名寫入已關閉，若課堂需要即時收集文字，需先加登入、App Check、活動碼或更精細的 Firestore rules。
+- Firebase CLI 部署時回報憑證過期，需要執行 `firebase.cmd login --reauth` 後再部署 Hosting 與 Firestore rules。
 
 ### 新增規則
 
@@ -46,8 +51,8 @@
 - `AGENTS.md`：已更新
 - `README.md`：已更新
 - `project-worklog.md`：已更新
-- Codex 全域 `AGENTS.md`：已要求同步更新
-- Antigravity 全域 `AGENTS.md`：已要求同步更新
+- Codex 全域 `AGENTS.md`：已同步更新
+- Antigravity 全域 `AGENTS.md`：已同步更新
 
 ## 2026-06-22
 
