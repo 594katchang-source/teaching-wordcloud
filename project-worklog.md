@@ -8,6 +8,7 @@
 - 移除 `public/app.js` 中硬寫的 Firebase Web API key。
 - 收緊 Firestore demo rules，先關閉匿名寫入。
 - 回寫專案與全域規則，避免 Codex 與 Antigravity 未來再提交相同類型資料。
+- 到 Google Cloud Console 限制、輪替並刪除外洩的舊 API key。
 
 ### 主要輸出
 
@@ -18,6 +19,8 @@
 - 更新 `firestore.rules`：允許 demo 文件讀取，禁止匿名寫入。
 - 更新 `README.md`：補 Firebase 設定檔、key 限制、輪換處理與部署指令。
 - 更新 `AGENTS.md`：加入本專案 Firebase key 與 Firestore rules 安全規則。
+- Google Cloud Console：將舊 key 改成網站限制後建立新 key，並刪除舊 key。
+- 本機忽略檔 `public/firebase-config.js`：已寫入新 key 與 Firebase Web App 設定，不提交到 Git。
 
 ### 驗證
 
@@ -26,24 +29,33 @@
 - 已確認 `public/firebase-config.js` 已列入 `.gitignore`。
 - 已確認 `firestore.rules` 已從匿名讀寫改成公開讀取、禁止匿名寫入。
 - 已確認 README、AGENTS、工作日誌已更新。
-- 已確認 Codex 全域 `AGENTS.md` 已加入 Firebase key 與 Secret Scanning 處理規則。
-- 已確認 Antigravity 全域 `AGENTS.md` 已加入 Firebase key 與 Secret Scanning 處理規則。
+- 已確認 Codex 全域 `AGENTS.md` 已加入所有專案通用的憑證防洩漏規則。
+- 已確認 Antigravity 全域 `AGENTS.md` 已加入所有專案通用的憑證防洩漏規則。
+- 已確認 Codex Firebase skill 已加入憑證不可提交與 key 輪換規則。
+- 已確認已新增長期記憶 `2026-06-23-global-secret-leak-prevention.md`。
 - 已確認本機 `D:\CodexAI協作平台\teaching` 已快轉到 GitHub 最新版本。
 - 已掃描本機專案，未再找到 Google API key pattern、`private_key` 或 `service_account`。
+- 已確認 Google Cloud 舊 key id `b3f5421f-5cb7-4081-8f40-5b791a18f8c5` 已刪除。
+- 已確認 Google Cloud 新 key id `7ab4ceeb-68a5-44d4-a7ba-08d84501d6ed` 已建立。
+- 已確認新 key 有 API 限制，維持 25 個 Firebase 相關 API。
+- 已確認新 key 的應用程式限制為網站，允許來源為 `https://teaching-3809d.web.app/*` 與 `https://teaching-3809d.firebaseapp.com/*`。
+- 已確認本機 Git 狀態只顯示忽略項目 `.firebase/` 與 `public/firebase-config.js`。
 
 ### 錯誤或風險
 
-- 舊 key 已出現在公開 GitHub 歷史提交中，單靠移除目前版本無法讓舊 key 失效。
-- 仍需到 Google Cloud Console 或 Firebase Console 將舊 key 停用或輪換，並為新 key 設定 HTTP referrer 與 API 權限限制。
-- `firebase-config.js` 若由本機部署，部署前仍要人工確認內容沒有進 Git。
+- 舊 key 已出現在公開 GitHub 歷史提交中。Google Cloud Console 已刪除舊 key，30 天內仍可從已刪除的憑證頁面還原。
+- `firebase-config.js` 是本機忽略檔，部署前仍要確認不能被加入 Git。
 - 匿名寫入已關閉，若課堂需要即時收集文字，需先加登入、App Check、活動碼或更精細的 Firestore rules。
-- Firebase CLI 部署時回報憑證過期，需要執行 `firebase.cmd login --reauth` 後再部署 Hosting 與 Firestore rules。
+- Firebase CLI 部署時回報憑證過期，且 `firebase.cmd login --reauth` 在目前非互動環境不能執行。需在本機互動終端重新登入後再部署 Hosting 與 Firestore rules。
+- 因 CLI 無法重新登入，本次尚未完成 Firebase Hosting 與 Firestore rules 的線上部署。Google Cloud key 輪換與限制已完成。
 
 ### 新增規則
 
-- 前端 Firebase Web API key 不得直接寫入 `public/app.js`、`public/index.html`、README、AGENTS 或工作日誌。
-- 真實 Firebase 前端設定只能放在 `.gitignore` 保護的 `public/firebase-config.js`，repo 僅保存 `public/firebase-config.example.js`。
-- GitHub Secret Scanning 回報後，處置要同時包含目前版本移除、規則收緊、工作日誌、專案 AGENTS、全域 Codex 與 Antigravity 規則同步。
+- 所有專案都不得把 API key、OAuth client secret、access token、refresh token、webhook secret、database URL、connection string、service account JSON、private key、`.env` 或任何憑證寫進 GitHub、公開資料夾、README、工作日誌、AGENTS 或前端程式。
+- 需要範例時只能提交 placeholder 或 `.example` 檔。
+- 真實憑證只能放在 `.gitignore` 保護的本機設定檔、環境變數、平台 secrets 或部署環境注入。
+- 可公開的前端 key 也要先設定來源網域、API 權限、配額與用途限制。
+- GitHub Secret Scanning 或任何平台回報憑證外洩後，處置要同時包含目前版本移除、雲端平台輪換或停用、權限收緊、工作日誌、專案 AGENTS、全域 Codex 與 Antigravity 規則同步。
 - Firestore demo 不得使用 `allow read, write: if true` 當成長期設定。
 
 ### 回寫狀態
@@ -53,6 +65,8 @@
 - `project-worklog.md`：已更新
 - Codex 全域 `AGENTS.md`：已同步更新
 - Antigravity 全域 `AGENTS.md`：已同步更新
+- Codex Firebase skill：已同步更新
+- Codex 長期記憶：已新增
 
 ## 2026-06-22
 
@@ -100,7 +114,7 @@
 - GitHub push 仍依賴目前瀏覽器登入狀態與本機 git 遠端權限。
 - 目前這個對話不會自動熱載入新 MCP 工具清單，通常仍要重開 Codex 或重載對應應用才會在介面內看到 Firebase MCP。
 - 若直接在受限沙箱內跑某些 Firebase CLI 查詢，可能撞到 `configstore` 權限錯誤。
-- Firebase Hosting 前端腳本更新後，瀏覽器可能沿用舊快取，造成你以為新功能沒生效。
+- Firebase Hosting 前端腳本更新後，瀏覽器可能沿用舊版 `app.js`，造成你以為新功能沒生效。
 
 ### 新學到的規則
 
