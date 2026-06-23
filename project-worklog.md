@@ -29,7 +29,7 @@
 - 已確認 Codex 全域 `AGENTS.md` 已加入 Firebase key 與 Secret Scanning 處理規則。
 - 已確認 Antigravity 全域 `AGENTS.md` 已加入 Firebase key 與 Secret Scanning 處理規則。
 - 已確認本機 `D:\CodexAI協作平台\teaching` 已快轉到 GitHub 最新版本。
-- 已掃描本機專案，未再找到 `AIza`、`private_key` 或 `service_account`。
+- 已掃描本機專案，未再找到 Google API key pattern、`private_key` 或 `service_account`。
 
 ### 錯誤或風險
 
