@@ -17,6 +17,8 @@ Firestore 位置：`asia-east1 (Taiwan)`
 Hosting 目錄：`public`
 部署指令：`firebase.cmd deploy`
 Firestore 文件路徑：`wordcloud_words/latest`
+前端設定檔：`public/firebase-config.js`
+設定範例：`public/firebase-config.example.js`
 
 ## 工作模式
 
@@ -39,6 +41,7 @@ Firestore 文件路徑：`wordcloud_words/latest`
 - `public/index.html`
 - `public/styles.css`
 - `public/app.js`
+- `public/firebase-config.example.js`
 - `firestore.rules`
 - `firebase.json`
 - `.firebaserc`
@@ -47,9 +50,18 @@ Firestore 文件路徑：`wordcloud_words/latest`
 
 ## 驗證重點
 
-- 線上頁面要能按 `存到 Firestore`
-- 線上頁面要能按 `讀取 Firestore`
-- 讀取後要能把 `wordcloud_words/latest` 的文字內容帶回輸入框
+- 頁面沒有 Firebase 設定時，文字雲本體仍要能使用。
+- Firestore 功能要在 `public/firebase-config.js` 存在且內容正確時才啟用。
+- 發布前要確認 repo 內沒有 Google API key、Firebase API key、service account JSON、`.env` 或任何 private token。
+- 若要開放寫入 Firestore，必須先有登入、App Check、活動碼或更明確的資料庫規則，再部署 `firestore.rules`。
+
+## 安全規則
+
+- 不要把 Firebase Admin 憑證放進 repo。
+- 不要把 Google API key 或 Firebase API key 直接寫進 `public/app.js`、`public/index.html`、README、AGENTS 或工作日誌。
+- 真實前端設定只能放在 `public/firebase-config.js`，且此檔必須維持在 `.gitignore`。
+- Firebase Web API key 即使用於前端，也要在 Google Cloud Console 限制 HTTP referrer 與 API 權限。
+- 若 GitHub Secret Scanning 回報 key，當次收尾要確認已移除 repo 目前版本、已更新規則檔、已提醒輪換或停用舊 key。
 
 ## 已知坑點
 
@@ -58,6 +70,5 @@ Firestore 文件路徑：`wordcloud_words/latest`
 
 ## 不要做
 
-- 不要把 Firebase Admin 憑證放進 repo
-- 不要把真實個資放進公開頁面或資料庫
-- 不要把每日進度寫進本檔
+- 不要把真實個資放進公開頁面或資料庫。
+- 不要把每日進度寫進本檔。
