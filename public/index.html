@@ -15,45 +15,22 @@
   <body>
     <main class="page-shell">
       <section class="hero-card">
-        <div class="hero-copy">
+        <div class="hero-header">
           <p class="eyebrow">Live Classroom Feedback</p>
           <h1>教學文字雲</h1>
-          <p class="intro">學生掃描 QR code 後送出文字，這裡會即時整理成文字雲。</p>
-          <div class="hero-actions">
-            <button id="submit-response" class="primary-button" type="button">送出回覆</button>
-            <button id="clear-round" class="secondary-button" type="button">清空本輪</button>
-          </div>
           <p id="db-status" class="status-text">資料庫狀態：尚未連線</p>
         </div>
         <aside class="qr-card" aria-label="學生連線 QR code">
           <img id="class-qr" alt="學生連線 QR code" />
-          <p>學生入口</p>
-          <a id="class-url" href="https://teaching-3809d.web.app">https://teaching-3809d.web.app</a>
         </aside>
-      </section>
-
-      <section class="workspace-grid">
-        <div class="panel editor-panel">
+        <div class="response-card">
           <label class="panel-title" for="response-text">你的回覆</label>
           <textarea id="response-text" spellcheck="false" maxlength="300" placeholder="請輸入這題的想法或關鍵字"></textarea>
-          <p class="hint">每次送出最多 300 字。老師按清空本輪後，畫面會開始新的題次。</p>
-        </div>
-
-        <div class="panel insight-panel">
-          <div class="panel-header">
-            <p class="panel-title">詞頻摘要</p>
-            <p id="summary" class="summary-text">尚未分析</p>
+          <div class="response-actions">
+            <p class="hint">每次送出最多 300 字。</p>
+            <button id="submit-response" class="primary-button" type="button">送出回覆</button>
           </div>
-          <ol id="top-words" class="top-words"></ol>
         </div>
-      </section>
-
-      <section class="panel feedback-panel">
-        <div class="panel-header">
-          <p class="panel-title">即時回覆</p>
-          <p id="response-count" class="summary-text">0 則</p>
-        </div>
-        <ul id="response-list" class="response-list"></ul>
       </section>
 
       <section class="panel cloud-panel">
@@ -63,9 +40,34 @@
         </div>
         <div id="cloud" class="cloud-canvas" aria-live="polite"></div>
       </section>
+
+      <section class="lower-grid">
+        <div class="panel feedback-panel">
+          <div class="panel-header">
+            <p class="panel-title">即時回覆</p>
+            <p id="response-count" class="summary-text">0 則</p>
+          </div>
+          <ul id="response-list" class="response-list"></ul>
+        </div>
+        <div class="panel insight-panel">
+          <div class="panel-header">
+            <p class="panel-title">詞頻摘要</p>
+            <p id="summary" class="summary-text">尚未分析</p>
+          </div>
+          <ol id="top-words" class="top-words"></ol>
+        </div>
+      </section>
+
+      <section class="footer-panel">
+        <button id="clear-round" class="danger-button" type="button">清空本輪</button>
+        <div class="designer-credit">
+          設計者：
+          <a href="https://594katchang-source.github.io/" rel="noopener noreferrer">Kat Chang 張雁雲營養師</a>
+        </div>
+      </section>
     </main>
 
     <script src="/firebase-config.js"></script>
-    <script type="module" src="/app.js?v=20260705b"></script>
+    <script type="module" src="/app.js?v=20260705c"></script>
   </body>
 </html>

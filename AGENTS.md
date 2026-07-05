@@ -61,6 +61,9 @@ Hosting 目錄：`public`
 - Firestore 煙霧測試可用 `tools/firestore-smoke-test.mjs`。完整寫入測試時只能短期開放單一測試文件，測完要恢復 `allow write: if false` 並部署。
 - 課堂回饋版允許匿名新增 300 字以內回覆，禁止匿名修改或刪除單筆回覆。
 - 「清空本輪」採切換 `activeRoundId`，不是刪除舊資料。
+- 版面順序固定為上方 QR code、你的回覆、送出回覆，接著文字雲預覽，再放即時回覆與詞頻摘要。
+- 「清空本輪」要放在最下方，降低現場誤按機率。
+- 頁面底部需保留設計者連結：`https://594katchang-source.github.io/`。
 
 ## 安全規則
 

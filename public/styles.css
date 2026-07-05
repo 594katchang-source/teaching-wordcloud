@@ -47,9 +47,9 @@ body {
   padding: 32px;
   position: relative;
   overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: minmax(220px, 0.8fr) 190px minmax(320px, 1.2fr);
+  align-items: stretch;
   gap: 28px;
 }
 
@@ -63,9 +63,12 @@ body {
   background: radial-gradient(circle, rgba(213, 84, 47, 0.28), transparent 68%);
 }
 
-.hero-copy {
+.hero-header {
   position: relative;
   z-index: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .eyebrow {
@@ -83,50 +86,43 @@ h1 {
   line-height: 0.95;
 }
 
-.intro {
-  max-width: 720px;
-  margin: 16px 0 0;
-  font-size: 1.05rem;
-  line-height: 1.8;
-  color: var(--muted);
-}
-
 .qr-card {
   position: relative;
   z-index: 1;
-  width: 230px;
+  display: grid;
+  place-items: center;
   padding: 18px;
   border-radius: 24px;
   background: rgba(255, 255, 255, 0.86);
   border: 1px solid rgba(17, 34, 51, 0.08);
-  text-align: center;
 }
 
 .qr-card img {
   display: block;
   width: 180px;
   height: 180px;
-  margin: 0 auto 12px;
   border-radius: 14px;
   background: white;
 }
 
-.qr-card p {
-  margin: 0 0 8px;
-  font-weight: 800;
-}
-
-.qr-card a {
-  color: var(--accent-2);
-  font-size: 0.85rem;
-  overflow-wrap: anywhere;
-}
-
-.hero-actions {
+.response-card {
+  position: relative;
+  z-index: 1;
   display: flex;
-  gap: 12px;
-  margin-top: 24px;
-  flex-wrap: wrap;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.response-card textarea {
+  min-height: 150px;
+}
+
+.response-actions {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 14px;
+  margin-top: 12px;
 }
 
 button {
@@ -155,7 +151,13 @@ button:hover {
   border: 1px solid rgba(17, 34, 51, 0.1);
 }
 
-.workspace-grid {
+.danger-button {
+  color: #8f2513;
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(143, 37, 19, 0.24);
+}
+
+.lower-grid {
   display: grid;
   grid-template-columns: minmax(0, 1.3fr) minmax(280px, 0.7fr);
   gap: 20px;
@@ -182,7 +184,6 @@ button:hover {
 
 textarea {
   width: 100%;
-  min-height: 280px;
   border: 1px solid rgba(17, 34, 51, 0.12);
   border-radius: 22px;
   padding: 18px;
@@ -227,7 +228,7 @@ textarea:focus {
 }
 
 .feedback-panel {
-  margin-top: 20px;
+  min-height: 100%;
 }
 
 .response-list {
@@ -261,6 +262,28 @@ textarea:focus {
   border: 1px solid rgba(17, 34, 51, 0.08);
 }
 
+.footer-panel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 20px;
+  padding: 20px 4px 0;
+}
+
+.designer-credit {
+  color: var(--muted);
+  font-size: 0.95rem;
+  text-align: right;
+}
+
+.designer-credit a {
+  color: var(--accent-2);
+  font-weight: 800;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+}
+
 .cloud-word {
   position: absolute;
   left: 50%;
@@ -285,16 +308,37 @@ textarea:focus {
 
 @media (max-width: 840px) {
   .hero-card {
+    grid-template-columns: 1fr;
+  }
+
+  .qr-card img {
+    width: 168px;
+    height: 168px;
+  }
+
+  .response-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .response-actions .primary-button {
+    width: 100%;
+  }
+
+  .lower-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .footer-panel {
     align-items: stretch;
     flex-direction: column;
   }
 
-  .qr-card {
+  .footer-panel button {
     width: 100%;
   }
 
-  .workspace-grid {
-    grid-template-columns: 1fr;
+  .designer-credit {
+    text-align: center;
   }
 
   .hero-card,

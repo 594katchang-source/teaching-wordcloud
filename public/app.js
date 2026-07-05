@@ -31,7 +31,6 @@ const clearButton = document.querySelector("#clear-round");
 const responseList = document.querySelector("#response-list");
 const responseCount = document.querySelector("#response-count");
 const classQr = document.querySelector("#class-qr");
-const classUrl = document.querySelector("#class-url");
 
 const palette = ["#d5542f", "#1f7a8c", "#f2b134", "#6b8e23", "#6c4ab6", "#2d4059"];
 const sessionId = "default";
@@ -59,8 +58,6 @@ function getClassUrl() {
 
 function setupQrCode() {
   const url = getClassUrl();
-  classUrl.href = url;
-  classUrl.textContent = url;
   classQr.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(url)}`;
 }
 

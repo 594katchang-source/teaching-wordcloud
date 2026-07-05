@@ -1,5 +1,46 @@
 # teaching 工作日誌
 
+## 2026-07-05 課堂回饋頁面排版調整
+
+### 任務
+
+- 調整課堂即時回饋頁面的操作順序。
+- 讓 QR code、你的回覆與送出回覆集中在上方。
+- 將清空本輪移到最下方，降低誤按機率。
+- 移除 QR code 旁的學生入口文字與網址。
+- 新增設計者連結。
+
+### 主要輸出
+
+- 更新 `public/index.html`：重新排序區塊，新增底部設計者連結。
+- 更新 `public/styles.css`：調整上方操作區、QR code、輸入框、底部清空區與手機版版面。
+- 更新 `public/app.js`：移除不再使用的網址文字更新邏輯。
+- `app.js` 版本參數更新為 `20260705c`。
+
+### 驗證
+
+- `node --check public\app.js` 通過。
+- `firebase.cmd deploy --only hosting --project teaching-3809d` 成功。
+- 線上 HTML 已確認包含 `submit-response`、`clear-round`、`designer-credit`、`Kat Chang 張雁雲營養師` 與 `app.js?v=20260705c`。
+- 線上 HTML 未再出現「學生入口」與 `class-url`。
+- 線上 JS 已確認保留 `addDoc`、`onSnapshot`、`submitResponse` 與 `setupQrCode`。
+
+### 錯誤或風險
+
+- 本次只調整前端版面，未改 Firestore rules。
+- 清空按鈕仍在公開頁面底部。若要限制老師才可清空，仍需加登入、App Check 或後端控制。
+
+### 新增規則
+
+- 課堂頁面操作區要貼近使用流程：QR code、輸入、送出同區呈現。
+- 清空操作要遠離學生輸入與送出按鈕。
+- 設計者資訊固定放頁面最下方，連回 Kat Chang GitHub 首頁。
+
+### 回寫狀態
+
+- `AGENTS.md`：已更新
+- `project-worklog.md`：已更新
+
 ## 2026-07-05 課堂即時回饋文字雲
 
 ### 任務
