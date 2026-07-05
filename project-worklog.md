@@ -1,5 +1,47 @@
 # teaching 工作日誌
 
+## 2026-07-05 移除首頁預設文字與清空 Firestore latest
+
+### 任務
+
+- 移除首頁上方的固定介紹文。
+- 移除「載入示範文字」按鈕與前端預載示範資料。
+- 刪除 Firestore `wordcloud_words/latest` 內已存的文字來源。
+- 部署新版 Firebase Hosting。
+
+### 主要輸出
+
+- 更新 `public/index.html`：刪除固定介紹文與示範按鈕，更新 `app.js` 版本參數為 `20260705a`。
+- 更新 `public/app.js`：移除 `demoText`、預設填入邏輯與示範按鈕事件。
+- Firestore `wordcloud_words/latest` 已用 Firebase CLI 刪除。
+- 新版已部署到 `https://teaching-3809d.web.app`。
+
+### 驗證
+
+- `node --check public\app.js` 通過。
+- 線上首頁已確認不含「把一段課堂重點」與「載入示範文字」。
+- 線上 `app.js?v=20260705a` 已確認不含 `demoText` 與 `sourceText.value = demoText`。
+- Firestore REST 讀取 `wordcloud_words/latest` 回傳 `404`，確認文件已不存在。
+- Firebase Hosting 部署成功，Hosting URL 為 `https://teaching-3809d.web.app`。
+
+### 錯誤或風險
+
+- `firebase.cmd firestore:delete ... --yes` 失敗，這版 CLI 沒有 `--yes`，正確參數是 `--force`。
+- PowerShell `Invoke-WebRequest` 抓 Firebase Hosting 時出現空物件錯誤，已改用 `curl.exe -k -L` 驗證。
+- 目前 Firestore 規則仍禁止匿名寫入，前端「存到 Firestore」按鈕在沒有新規則前會被擋下。
+
+### 新增規則
+
+- 若要刪除單一 Firestore 文件，這台主機採用 `firebase.cmd firestore:delete <path> --force`。
+- 線上頁面驗證遇到 Windows TLS 或 PowerShell 讀取問題時，可用 `curl.exe -k -L` 抓公開頁面內容核對。
+
+### 回寫狀態
+
+- `AGENTS.md`：已更新
+- `project-worklog.md`：已更新
+- Codex Firebase skill：已更新
+- Antigravity Firebase skill：已同步
+
 ## 2026-06-23 Firestore smoke test
 
 ### 任務

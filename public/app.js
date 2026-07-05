@@ -12,24 +12,16 @@ const firebaseConfig = window.TEACHING_WORDCLOUD_FIREBASE_CONFIG;
 let db = null;
 let latestDocRef = null;
 
-const demoText = `營養教育 健康促進 高齡飲食 教學設計 互動課程 社區衛教
-高齡營養 高齡營養 慢性病飲食 飲食評估 食材選擇
-教學 教學 教學 溝通 實作 問答 動機 行為改變
-健康促進 健康促進 肌少症 蛋白質 水分 蔬果 全穀`;
-
 const cloud = document.querySelector("#cloud");
 const sourceText = document.querySelector("#source-text");
 const topWords = document.querySelector("#top-words");
 const summary = document.querySelector("#summary");
 const statusText = document.querySelector("#db-status");
 const renderButton = document.querySelector("#render-cloud");
-const demoButton = document.querySelector("#load-demo");
 const saveButton = document.querySelector("#save-firestore");
 const readButton = document.querySelector("#read-firestore");
 
 const palette = ["#d5542f", "#1f7a8c", "#f2b134", "#6b8e23", "#6c4ab6", "#2d4059"];
-
-sourceText.value = demoText;
 
 function setStatus(message) {
   statusText.textContent = `資料庫狀態：${message}`;
@@ -198,11 +190,6 @@ async function readLatestWordCloud() {
 }
 
 renderButton.addEventListener("click", () => {
-  updateCloud();
-});
-
-demoButton.addEventListener("click", () => {
-  sourceText.value = demoText;
   updateCloud();
 });
 

@@ -17,6 +17,7 @@ Firestore 位置：`asia-east1 (Taiwan)`
 Hosting 目錄：`public`
 部署指令：`firebase.cmd deploy`
 Firestore 文件路徑：`wordcloud_words/latest`
+目前 `wordcloud_words/latest` 已刪除，首頁不再預載示範文字。
 前端設定檔：`public/firebase-config.js`
 設定範例：`public/firebase-config.example.js`
 
@@ -71,6 +72,8 @@ Firestore 文件路徑：`wordcloud_words/latest`
 - Firebase Hosting 更新後，Chrome 可能繼續吃舊版 `app.js`。若剛部署完的前端行為看起來沒更新，要替腳本路徑加版本參數，或用新的查詢參數重開頁面再驗證。
 - Node v24 在這台 Windows 主機直接執行 Firestore REST 測試時，可能因 TLS 憑證鏈出現 `UNABLE_TO_VERIFY_LEAF_SIGNATURE`，要加 `$env:NODE_OPTIONS='--use-system-ca'`。
 - Node v24 在這台 Windows 主機的測試腳本內不要用 `process.exit(0)` 提早結束，曾觸發 `UV_HANDLE_CLOSING` assertion。讓腳本自然結束較穩。
+- 這版 Firebase CLI 刪 Firestore 文件要用 `firebase.cmd firestore:delete <path> --force`，`--yes` 不是有效參數。
+- 這台主機用 PowerShell `Invoke-WebRequest` 抓 Firebase Hosting 頁面時可能出現空物件錯誤，可改用 `curl.exe -k -L` 驗證公開頁面內容。
 
 ## 不要做
 
