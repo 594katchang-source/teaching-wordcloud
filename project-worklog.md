@@ -1,5 +1,52 @@
 # teaching 工作日誌
 
+## 2026-07-05 課堂即時回饋文字雲
+
+### 任務
+
+- 將 `teaching-wordcloud` 改成可重複用於每次教學的 QR code 即時回饋工具。
+- 學生掃同一個網址後可輸入回覆。
+- 老師可在同一頁看到即時回覆與文字雲。
+- 問答結束後可按「清空本輪」開始新題次。
+
+### 主要輸出
+
+- 更新 `public/index.html`：新增 QR code 區塊、送出回覆、清空本輪、即時回覆列表。
+- 更新 `public/app.js`：改用 Firestore `onSnapshot` 即時監聽、匿名新增回覆、切換新題次。
+- 更新 `public/styles.css`：補 QR card、回覆列表與手機版版面。
+- 更新 `firestore.rules`：允許匿名新增 300 字以內回覆，禁止修改與刪除單筆回覆。
+- 部署 Firebase Hosting 與 Firestore rules。
+
+### 驗證
+
+- `node --check public\app.js` 通過。
+- `firebase.cmd deploy --only hosting,firestore:rules --project teaching-3809d` 成功。
+- Firestore rules 編譯成功並發布。
+- 匿名 Firestore REST 測試成功：建立題次 `200`、送出回覆 `200`、讀回回覆 `200`、切換空白新題次 `200`。
+- 線上 HTML 已確認包含「送出回覆」、「清空本輪」、`class-qr` 與 `/app.js?v=20260705b`。
+- 線上 JS 已確認包含 `onSnapshot`、`addDoc` 與 `startNewRound`。
+
+### 錯誤或風險
+
+- 測試腳本第一次混用 CommonJS `require` 與 top-level await，Node 回報模組格式不明，已改成 ES module import。
+- Node 直接打 Firestore REST 時再次遇到 `UNABLE_TO_VERIFY_LEAF_SIGNATURE`，已用 `$env:NODE_OPTIONS='--use-system-ca'` 重跑成功。
+- 清空按鈕目前在公開頁面，適合現場 demo。若要避免學生清空，需加老師專用入口、登入、App Check 或後端控制。
+- 「清空本輪」只切換新題次，不刪除舊回覆。若要定期清舊資料，需要另做管理工具或在 Firebase Console 手動刪除。
+
+### 新增規則
+
+- 課堂即時回饋版採 `class_sessions/default` 保存目前題次，回覆放在 `class_sessions/default/rounds/{roundId}/responses`。
+- 學生匿名回覆限制 300 字以內，只允許 create，不允許 update 或 delete。
+- 同一網址要重複給學生掃描時，清空流程優先採切換新題次，避免誤刪資料。
+
+### 回寫狀態
+
+- `README.md`：已更新
+- `AGENTS.md`：已更新
+- `project-worklog.md`：已更新
+- Codex Firebase skill：已更新
+- Antigravity Firebase skill：已同步
+
 ## 2026-07-05 移除首頁預設文字與清空 Firestore latest
 
 ### 任務

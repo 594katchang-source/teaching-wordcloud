@@ -3,7 +3,7 @@
 ## 專案入口
 
 專案名稱：teaching
-專案用途：用 Firebase Hosting 發布教學型互動頁面
+專案用途：用 Firebase Hosting 發布課堂即時回饋文字雲
 主要工作目錄：D:\CodexAI協作平台\teaching
 GitHub repo：`https://github.com/594katchang-source/teaching-wordcloud`
 預設 branch：main
@@ -16,8 +16,10 @@ Firebase project id：`teaching-3809d`
 Firestore 位置：`asia-east1 (Taiwan)`
 Hosting 目錄：`public`
 部署指令：`firebase.cmd deploy`
-Firestore 文件路徑：`wordcloud_words/latest`
+舊版 Firestore 文件路徑：`wordcloud_words/latest`
 目前 `wordcloud_words/latest` 已刪除，首頁不再預載示範文字。
+課堂回饋狀態：`class_sessions/default`
+課堂回覆路徑：`class_sessions/default/rounds/{roundId}/responses/{responseId}`
 前端設定檔：`public/firebase-config.js`
 設定範例：`public/firebase-config.example.js`
 
@@ -57,6 +59,8 @@ Firestore 文件路徑：`wordcloud_words/latest`
 - 發布前要確認 repo 內沒有 Google API key、Firebase API key、service account JSON、`.env` 或任何 private token。
 - 若要開放寫入 Firestore，必須先有登入、App Check、活動碼或更明確的資料庫規則，再部署 `firestore.rules`。
 - Firestore 煙霧測試可用 `tools/firestore-smoke-test.mjs`。完整寫入測試時只能短期開放單一測試文件，測完要恢復 `allow write: if false` 並部署。
+- 課堂回饋版允許匿名新增 300 字以內回覆，禁止匿名修改或刪除單筆回覆。
+- 「清空本輪」採切換 `activeRoundId`，不是刪除舊資料。
 
 ## 安全規則
 
@@ -65,6 +69,7 @@ Firestore 文件路徑：`wordcloud_words/latest`
 - 真實前端設定只能放在 `public/firebase-config.js`，且此檔必須維持在 `.gitignore`。
 - Firebase Web API key 即使用於前端，也要在 Google Cloud Console 限制 HTTP referrer 與 API 權限。
 - 若 GitHub Secret Scanning 回報 key，當次收尾要確認已移除 repo 目前版本、已更新規則檔、已提醒輪換或停用舊 key。
+- 目前清空按鈕在同一個公開頁面，適合作為課堂 demo。若要防止學生清空，需加老師專用入口、登入、App Check 或後端控制。
 
 ## 已知坑點
 

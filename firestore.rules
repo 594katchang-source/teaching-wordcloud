@@ -1,11 +1,49 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    function validResponse() {
+      return request.resource.data.keys().hasOnly([
+        'text',
+        'clientId',
+        'createdAt',
+        'createdAtClient'
+      ])
+      && request.resource.data.text is string
+      && request.resource.data.text.size() > 0
+      && request.resource.data.text.size() <= 300
+      && request.resource.data.clientId is string
+      && request.resource.data.clientId.size() <= 80
+      && request.resource.data.createdAtClient is string;
+    }
+
     match /wordcloud_words/{document} {
       // Demo data may be read by the teaching page. Public writes stay blocked until auth, App Check, or a short-lived activity flow is added.
       allow read: if true;
       allow write: if false;
     }
+
+    match /class_sessions/{sessionId} {
+      allow read: if true;
+      allow create, update: if sessionId == 'default'
+        && request.resource.data.keys().hasOnly([
+          'activeRoundId',
+          'updatedAt',
+          'updatedAtClient'
+        ])
+        && request.resource.data.activeRoundId is string
+        && request.resource.data.activeRoundId.matches('round_[0-9]{14}_[a-f0-9]{6}')
+        && request.resource.data.updatedAtClient is string;
+      allow delete: if false;
+
+      match /rounds/{roundId}/responses/{responseId} {
+        allow read: if sessionId == 'default';
+        allow create: if sessionId == 'default'
+          && roundId.matches('round_[0-9]{14}_[a-f0-9]{6}')
+          && validResponse();
+        allow update, delete: if false;
+      }
+    }
+
     match /{document=**} {
       allow read, write: if false;
     }

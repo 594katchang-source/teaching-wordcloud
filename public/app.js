@@ -1,8 +1,13 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
 import {
+  addDoc,
+  collection,
   doc,
-  getDoc,
   getFirestore,
+  limit,
+  onSnapshot,
+  orderBy,
+  query,
   serverTimestamp,
   setDoc
 } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
@@ -10,21 +15,53 @@ import {
 const firebaseConfig = window.TEACHING_WORDCLOUD_FIREBASE_CONFIG;
 
 let db = null;
-let latestDocRef = null;
+let sessionRef = null;
+let activeRoundId = "";
+let unsubscribeSession = null;
+let unsubscribeResponses = null;
+let responses = [];
 
 const cloud = document.querySelector("#cloud");
-const sourceText = document.querySelector("#source-text");
+const responseText = document.querySelector("#response-text");
 const topWords = document.querySelector("#top-words");
 const summary = document.querySelector("#summary");
 const statusText = document.querySelector("#db-status");
-const renderButton = document.querySelector("#render-cloud");
-const saveButton = document.querySelector("#save-firestore");
-const readButton = document.querySelector("#read-firestore");
+const submitButton = document.querySelector("#submit-response");
+const clearButton = document.querySelector("#clear-round");
+const responseList = document.querySelector("#response-list");
+const responseCount = document.querySelector("#response-count");
+const classQr = document.querySelector("#class-qr");
+const classUrl = document.querySelector("#class-url");
 
 const palette = ["#d5542f", "#1f7a8c", "#f2b134", "#6b8e23", "#6c4ab6", "#2d4059"];
+const sessionId = "default";
+const clientIdKey = "teaching-wordcloud-client-id";
 
 function setStatus(message) {
   statusText.textContent = `資料庫狀態：${message}`;
+}
+
+function getClientId() {
+  const stored = window.localStorage.getItem(clientIdKey);
+
+  if (stored) {
+    return stored;
+  }
+
+  const generated = `client-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  window.localStorage.setItem(clientIdKey, generated);
+  return generated;
+}
+
+function getClassUrl() {
+  return `${window.location.origin}${window.location.pathname}`;
+}
+
+function setupQrCode() {
+  const url = getClassUrl();
+  classUrl.href = url;
+  classUrl.textContent = url;
+  classQr.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(url)}`;
 }
 
 function hasFirebaseConfig(config) {
@@ -40,16 +77,16 @@ function hasFirebaseConfig(config) {
 
 function initializeDatabase() {
   if (!hasFirebaseConfig(firebaseConfig)) {
-    saveButton.disabled = true;
-    readButton.disabled = true;
-    setStatus("尚未設定 Firebase，文字雲功能可正常使用");
+    submitButton.disabled = true;
+    clearButton.disabled = true;
+    setStatus("尚未設定 Firebase，無法接收學生回覆");
     return;
   }
 
   const app = initializeApp(firebaseConfig);
   db = getFirestore(app);
-  latestDocRef = doc(db, "wordcloud_words", "latest");
-  setStatus("Firebase 已設定，尚未做資料庫操作");
+  sessionRef = doc(db, "class_sessions", sessionId);
+  watchSession();
 }
 
 function tokenize(text) {
@@ -123,88 +160,152 @@ function renderCloud(items) {
 }
 
 function updateCloud() {
-  const items = analyze(sourceText.value);
+  const joinedText = responses.map((response) => response.text).join("\n");
+  const items = analyze(joinedText);
   renderTopWords(items);
   renderCloud(items);
   return items;
 }
 
 function assertDatabaseReady() {
-  if (!latestDocRef) {
+  if (!sessionRef) {
     throw new Error("尚未設定 Firebase，無法使用 Firestore");
   }
 }
 
-async function saveLatestWordCloud() {
+function renderResponses() {
+  responseList.innerHTML = "";
+  responseCount.textContent = `${responses.length} 則`;
+
+  responses.slice(0, 20).forEach((response) => {
+    const item = document.createElement("li");
+    item.textContent = response.text;
+    responseList.appendChild(item);
+  });
+
+  updateCloud();
+}
+
+function makeRoundId() {
+  const stamp = new Date().toISOString().replace(/[-:.TZ]/g, "").slice(0, 14);
+  return `round_${stamp}_${Math.random().toString(16).slice(2, 8)}`;
+}
+
+async function startNewRound() {
   assertDatabaseReady();
-  const items = updateCloud();
-  setStatus("寫入中");
-  console.log("saveLatestWordCloud:start", { textLength: sourceText.value.length });
+  const newRoundId = makeRoundId();
+  activeRoundId = newRoundId;
+  watchResponses(activeRoundId);
+
+  await setDoc(sessionRef, {
+    activeRoundId: newRoundId,
+    updatedAt: serverTimestamp(),
+    updatedAtClient: new Date().toISOString()
+  });
+}
+
+async function submitResponse() {
+  assertDatabaseReady();
+  const text = responseText.value.trim();
+
+  if (!text) {
+    setStatus("請先輸入回覆");
+    return;
+  }
+
+  if (!activeRoundId) {
+    await startNewRound();
+  }
+
+  submitButton.disabled = true;
+  setStatus("送出中");
 
   try {
-    await setDoc(latestDocRef, {
-      text: sourceText.value,
-      summary: summary.textContent,
-      topWords: items.slice(0, 8),
-      wordCount: items.length,
-      totalTokenCount: items.reduce((sum, item) => sum + item.count, 0),
-      updatedAt: serverTimestamp(),
-      updatedAtClient: new Date().toISOString()
+    await addDoc(collection(db, "class_sessions", sessionId, "rounds", activeRoundId, "responses"), {
+      text,
+      clientId: getClientId(),
+      createdAt: serverTimestamp(),
+      createdAtClient: new Date().toISOString()
     });
-    console.log("saveLatestWordCloud:success");
-    setStatus("已成功寫入 Firestore");
+
+    responseText.value = "";
+    setStatus("已送出，文字雲會自動更新");
   } catch (error) {
-    console.error("saveLatestWordCloud:error", error);
-    setStatus(`寫入失敗：${error.message}`);
+    setStatus(`送出失敗：${error.message}`);
     throw error;
+  } finally {
+    submitButton.disabled = false;
   }
 }
 
-async function readLatestWordCloud() {
-  assertDatabaseReady();
-  setStatus("讀取中");
-  console.log("readLatestWordCloud:start");
-  try {
-    const snapshot = await getDoc(latestDocRef);
-
+function watchSession() {
+  unsubscribeSession?.();
+  unsubscribeSession = onSnapshot(sessionRef, async (snapshot) => {
     if (!snapshot.exists()) {
-      console.warn("readLatestWordCloud:not-found");
-      setStatus("找不到 latest 文件");
-      return null;
+      setStatus("建立課堂題次中");
+      await startNewRound();
+      return;
     }
 
     const data = snapshot.data();
-    sourceText.value = data.text || "";
-    const items = Array.isArray(data.topWords) ? data.topWords : analyze(sourceText.value);
-    renderTopWords(items);
-    renderCloud(Array.isArray(data.topWords) ? analyze(sourceText.value) : items);
-    summary.textContent = data.summary || summary.textContent;
-    console.log("readLatestWordCloud:success", data);
-    setStatus(`已成功讀取 Firestore，最後更新 ${data.updatedAtClient || "未知"}`);
-    return data;
-  } catch (error) {
-    console.error("readLatestWordCloud:error", error);
-    setStatus(`讀取失敗：${error.message}`);
-    throw error;
-  }
+    const nextRoundId = data.activeRoundId || "";
+
+    if (nextRoundId && nextRoundId !== activeRoundId) {
+      activeRoundId = nextRoundId;
+      watchResponses(activeRoundId);
+    }
+
+    setStatus(`即時連線中，本輪 ${activeRoundId || "尚未建立"}`);
+  }, (error) => {
+    setStatus(`連線失敗：${error.message}`);
+  });
 }
 
-renderButton.addEventListener("click", () => {
-  updateCloud();
+function watchResponses(roundId) {
+  unsubscribeResponses?.();
+  responses = [];
+  renderResponses();
+
+  const responsesQuery = query(
+    collection(db, "class_sessions", sessionId, "rounds", roundId, "responses"),
+    orderBy("createdAtClient", "desc"),
+    limit(200)
+  );
+
+  unsubscribeResponses = onSnapshot(responsesQuery, (snapshot) => {
+    responses = snapshot.docs
+      .map((document) => ({ id: document.id, ...document.data() }))
+      .filter((response) => typeof response.text === "string" && response.text.trim().length > 0);
+    renderResponses();
+  }, (error) => {
+    setStatus(`讀取回覆失敗：${error.message}`);
+  });
+}
+
+submitButton.addEventListener("click", async () => {
+  await submitResponse();
 });
 
-saveButton.addEventListener("click", async () => {
-  await saveLatestWordCloud();
+clearButton.addEventListener("click", async () => {
+  clearButton.disabled = true;
+  try {
+    await startNewRound();
+    responseText.value = "";
+    setStatus("已清空本輪，等待新回覆");
+  } catch (error) {
+    setStatus(`清空失敗：${error.message}`);
+    throw error;
+  } finally {
+    clearButton.disabled = false;
+  }
 });
 
-readButton.addEventListener("click", async () => {
-  await readLatestWordCloud();
+responseText.addEventListener("keydown", async (event) => {
+  if ((event.ctrlKey || event.metaKey) && event.key === "Enter") {
+    await submitResponse();
+  }
 });
 
-sourceText.addEventListener("input", () => {
-  window.clearTimeout(sourceText._typingTimer);
-  sourceText._typingTimer = window.setTimeout(updateCloud, 280);
-});
-
+setupQrCode();
 updateCloud();
 initializeDatabase();
