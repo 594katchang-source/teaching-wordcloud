@@ -20,6 +20,7 @@ Hosting 目錄：`public`
 目前 `wordcloud_words/latest` 已刪除，首頁不再預載示範文字。
 課堂回饋狀態：`class_sessions/default`
 課堂回覆路徑：`class_sessions/default/rounds/{roundId}/responses/{responseId}`
+QR code 連結固定為部署網址，清空本輪只切換 Firestore 題次，不改網址。
 前端設定檔：`public/firebase-config.js`
 設定範例：`public/firebase-config.example.js`
 
@@ -61,6 +62,7 @@ Hosting 目錄：`public`
 - Firestore 煙霧測試可用 `tools/firestore-smoke-test.mjs`。完整寫入測試時只能短期開放單一測試文件，測完要恢復 `allow write: if false` 並部署。
 - 課堂回饋版允許匿名新增 300 字以內回覆，禁止匿名修改或刪除單筆回覆。
 - 「清空本輪」採切換 `activeRoundId`，不是刪除舊資料。
+- QR code 固定指向 `https://teaching-3809d.web.app`，每次上課可重複使用同一張 QR code。
 - 版面順序固定為上方 QR code、你的回覆、送出回覆，接著文字雲預覽，再放即時回覆與詞頻摘要。
 - 「清空本輪」要放在最下方，降低現場誤按機率。
 - 頁面底部需保留設計者連結：`https://594katchang-source.github.io/`。

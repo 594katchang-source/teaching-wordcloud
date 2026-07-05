@@ -1,5 +1,46 @@
 # teaching 工作日誌
 
+## 2026-07-05 收工
+
+### 任務
+
+- 依「收工」流程確認課堂即時回饋頁面已可交付。
+- 回答並記錄 QR code 是否會變動。
+- 檢查 GitHub、Hosting 與專案文件同步狀態。
+
+### 主要輸出
+
+- 確認 QR code 固定指向 `https://teaching-3809d.web.app`。
+- 補充 `AGENTS.md`：QR code 固定網址，清空本輪只切換 Firestore 題次。
+- 補充本工作日誌收工紀錄。
+
+### 驗證
+
+- Git 狀態檢查：本機 branch 為 `main...origin/main`。
+- 遠端同步檢查：`HEAD...origin/main` 為 `0 0`。
+- 線上頁面檢查：可抓到「送出回覆」、「文字雲預覽」、「清空本輪」、「Kat Chang 張雁雲營養師」與 `app.js?v=20260705c`。
+
+### 錯誤或風險
+
+- 清空按鈕仍是公開頁面按鈕。若要避免學生誤按或惡意清空，後續需做老師登入、App Check 或後端控制。
+- 目前 QR code 依賴 `https://teaching-3809d.web.app` 固定網址。若之後換網域或 Firebase project id，QR code 才需要重生。
+
+### 新增規則
+
+- 這個專案的 QR code 固定連部署網址，不隨每次上課或清空本輪變動。
+- 清空本輪只改 `class_sessions/default.activeRoundId`，不改 Hosting URL。
+
+### 使用者偏好與修正紀錄
+
+- 使用者希望課堂操作流程要貼近現場使用習慣，輸入與送出按鈕需放近，清空要遠離主要操作區。
+- 使用者重視可重複使用同一網站與同一 QR code，避免每次上課都重新產生入口。
+- 本次已將這些偏好寫入 `AGENTS.md` 與工作日誌。
+
+### 回寫狀態
+
+- `AGENTS.md`：已更新
+- `project-worklog.md`：已更新
+
 ## 2026-07-05 課堂回饋頁面排版調整
 
 ### 任務
